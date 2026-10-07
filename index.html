@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Бриф: ИИ-помощник для Instagram</title>
+<meta name="description" content="15 минут, большинство ответов одним касанием. Всё сохраняется само.">
+<meta property="og:title" content="Бриф: ИИ-помощник для Instagram">
+<meta property="og:description" content="15 минут, большинство ответов одним касанием. Всё сохраняется само.">
+<meta property="og:type" content="website">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F5F1E9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141311" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%237D5F38'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='36' fill='%23FFFDF9'%3E%D0%91%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F1E9; --surface:#FFFDF9; --ink:#1D1B18; --muted:#6F695F; --line:#E3DBCD;
+  --accent:#7D5F38; --accent-ink:#FFFFFF; --accent-soft:#EFE5D3;
+  --ok:#46664A; --ok-soft:#E4ECDF;
+  --shadow:0 1px 2px rgba(30,25,15,.05),0 10px 30px rgba(30,25,15,.06);
+  --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --sans:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#141311; --surface:#1C1A17; --ink:#F2EDE4; --muted:#A79F92; --line:#34302A;
+    --accent:#CBA672; --accent-ink:#17130D; --accent-soft:#2A241B;
+    --ok:#9CC09A; --ok-soft:#1E281E; --shadow:none; color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+.wrap{max-width:680px;margin:0 auto;padding:0 16px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* верхняя панель */
+.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(1.2) blur(10px);-webkit-backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid var(--line)}
+.top[hidden]{display:none}
+.top-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0 8px}
+.brand{font:600 20px/1 var(--serif);letter-spacing:.01em}
+.step-of{color:var(--muted);font-size:13px;font-weight:500}
+.saved{font-size:12px;color:var(--ok);opacity:0;transition:opacity .3s}
+.saved.show{opacity:1}
+.bar{height:3px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .35s ease}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 0 12px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.tab[aria-current=step]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.tab .dot{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.tab.done .dot{background:var(--ok)}
+.tab.part .dot{background:var(--accent)}
+
+/* приветствие */
+.hero{padding:48px 0 32px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 16px}
+h1{font:600 42px/1.08 var(--serif);margin:0 0 16px;letter-spacing:-.005em}
+.lead{font-size:17px;color:var(--muted);margin:0 0 24px;max-width:34em}
+.feat{list-style:none;padding:0;margin:0 0 26px;border-top:1px solid var(--line)}
+.feat li{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line);font-size:15px;line-height:1.45}
+.feat svg{flex:0 0 22px;margin-top:0;color:var(--accent)}
+.fine{font-size:13px;color:var(--muted);margin:14px 0 0}
+.star{color:var(--accent)}
+
+/* шаг */
+.step-head{padding:28px 0 6px}
+.step-head h2{font:600 32px/1.12 var(--serif);margin:0 0 10px}
+.step-head p{color:var(--muted);margin:0;max-width:36em}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 18px 18px;margin:14px 0;box-shadow:var(--shadow);transition:border-color .2s}
+.q.is-done{border-color:color-mix(in srgb,var(--ok) 35%,var(--line))}
+.q-n{font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--muted);display:flex;align-items:center;gap:8px}
+.q-n .tick{display:none;color:var(--ok)}
+.q.is-done .q-n .tick{display:inline}
+.q-t{font-weight:600;font-size:17px;line-height:1.4;margin:6px 0 4px}
+.q-confirm .q-t{font:600 21px/1.3 var(--serif);font-weight:600}
+.hint{color:var(--muted);font-size:14px;margin:2px 0 12px}
+.q-t + .chips,.q-t + input,.q-t + textarea,.q-t + .files,.q-t + .drop{margin-top:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{appearance:none;border:1px solid var(--line);background:transparent;border-radius:999px;padding:9px 15px;font-size:15px;font-weight:500;line-height:1.25;cursor:pointer;min-height:42px;text-align:left;transition:background .15s,border-color .15s,color .15s}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip.ok[aria-pressed=true]{background:var(--ok);border-color:var(--ok);color:var(--bg)}
+input[type=text],textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);padding:12px 14px;font:400 16px/1.45 var(--sans);resize:vertical}
+input[type=text]:focus,textarea:focus,.chip:focus-visible,.btn:focus-visible,.tab:focus-visible,.drop:focus-within{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}
+.other{margin-top:10px}
+.files{list-style:none;padding:0;margin:0 0 10px;display:grid;gap:6px}
+.files li{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 8px 8px 12px;font-size:14px}
+.files li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.files small{color:var(--muted)}
+.x{border:0;background:transparent;font-size:20px;line-height:1;width:32px;height:32px;border-radius:8px;cursor:pointer;color:var(--muted)}
+.x:hover{background:var(--accent-soft)}
+.drop{display:inline-flex;align-items:center;gap:8px;border:1px dashed var(--accent);color:var(--accent);border-radius:12px;padding:10px 16px;font-weight:600;font-size:15px;cursor:pointer}
+.drop input{position:absolute;width:1px;height:1px;opacity:0}
+.q-file{padding:14px 16px;margin:10px 0}
+.q-file .q-t{font-size:16px;margin:2px 0 10px}
+.q-file .drop{padding:8px 14px;font-size:14px}
+
+/* навигация */
+.nav{position:sticky;bottom:0;z-index:4;padding:18px 0 calc(14px + env(safe-area-inset-bottom));background:linear-gradient(to bottom,transparent,var(--bg) 40%);display:flex;gap:10px;justify-content:space-between}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:13px 22px;font-size:16px;font-weight:600;cursor:pointer;min-height:50px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.block{width:100%}
+.nav .btn.primary{flex:1;max-width:260px;margin-left:auto}
+
+/* отправка */
+.send{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px 18px;margin:22px 0;box-shadow:var(--shadow)}
+.send h3{font:600 26px/1.15 var(--serif);margin:0 0 6px}
+.meter{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.meter div{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.meter b{display:block;font:600 28px/1.1 var(--serif)}
+.meter span{font-size:13px;color:var(--muted)}
+.missing{margin:4px 0 16px}
+.missing p{font-size:14px;color:var(--muted);margin:0 0 8px}
+.missing .chip{font-size:14px;min-height:36px;padding:6px 12px}
+.actions{display:grid;gap:10px}
+.actions .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions .row .btn{font-size:15px;padding:11px 10px;min-height:46px;white-space:nowrap}
+.nav.static{position:static;background:none}
+.note{font-size:14px;color:var(--muted);margin:12px 0 0;min-height:1.4em}
+.note.ok{color:var(--ok)}
+.next{margin:28px 0 8px}
+.next h3{font:600 24px/1.2 var(--serif);margin:0 0 14px}
+.next ol{list-style:none;padding:0;margin:0;display:grid;gap:0;counter-reset:n}
+.next li{counter-increment:n;position:relative;padding:0 0 18px 44px}
+.next li::before{content:counter(n);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;border:1px solid var(--accent);color:var(--accent);font:600 15px/28px var(--sans);text-align:center}
+.next li::after{content:"";position:absolute;left:15px;top:32px;bottom:2px;width:1px;background:var(--line)}
+.next li:last-child::after{display:none}
+.next li b{display:block;font-weight:600}
+.next li span{color:var(--muted);font-size:15px}
+.foot{color:var(--muted);font-size:12px;text-align:center;padding:24px 0 40px}
+
+@media (max-width:420px){
+  h1{font-size:34px}
+  .lead{font-size:16px}
+  .step-head h2{font-size:28px}
+  .hero{padding-top:32px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top" id="top" hidden>
+  <div class="wrap">
+    <div class="top-row">
+      <span class="brand">Бриф</span>
+      <span class="saved" id="saved" aria-live="polite">Сохранено</span>
+      <span class="step-of" id="stepOf"></span>
+    </div>
+    <div class="bar" aria-hidden="true"><i id="barFill"></i></div>
+    <nav class="tabs" id="tabs" aria-label="Разделы анкеты"></nav>
+  </div>
+</header>
+<main class="wrap" id="app"></main>
+
+<script>
+(function(){
+"use strict";
+
+var STEPS = [
+  {title:"Что мы уже поняли", short:"Главное",
+   lead:"Это из ваших голосовых. Отметьте, всё ли верно. Если нет, поправьте в одну строку.",
+   qs:[
+    {id:"c1",type:"confirm",q:"Вы шьёте по индивидуальным меркам, в премиальном сегменте."},
+    {id:"c2",type:"confirm",q:"Клиенты пишут вам в директ Instagram. Отдельной CRM нет."},
+    {id:"c3",type:"confirm",q:"Помощник ведёт клиента сам: от вопроса «какие у вас есть оттенки» до оформленного заказа, круглосуточно."},
+    {id:"c4",type:"confirm",q:"Помощник считает заказ по вашему прайсу и присылает QR-код на оплату."},
+    {id:"c5",type:"confirm",q:"Помощник делает рассылки, когда у вас официальные предложения."},
+    {id:"c6",type:"confirm",q:"Помощник учится отвечать так же, как ваши менеджеры, на вашей переписке в Instagram."},
+    {id:"c7",type:"confirm",q:"Скорость ответа критична: клиент не ждёт ни ночью, ни когда у менеджера не работает VPN."}
+   ]},
+  {title:"Ваши изделия", short:"Изделия",
+   lead:"Помощник должен знать ваш ассортимент не хуже опытного менеджера.",
+   qs:[
+    {id:"p1",type:"area",star:true,q:"Что именно вы шьёте? Что заказывают чаще всего?"},
+    {id:"p2",type:"text",star:true,q:"В каком городе вы находитесь и куда отправляете заказы?"},
+    {id:"p3",type:"many",star:true,q:"«Оттенки», о которых спрашивают клиенты, — это про что?",opts:["Ткани","Цвет готового изделия","Фурнитура","Другое"],other:"Другое"},
+    {id:"p4",type:"one",q:"Есть ли фото или каталог тканей и оттенков, которые помощник сможет показывать клиенту?",hint:"Если есть, прикрепите его в последнем разделе.",opts:["Да, есть","Частично","Нет, сделаем"]},
+    {id:"p5",type:"text",q:"Сколько обычно занимает пошив?",ph:"например, 10–14 дней"},
+    {id:"p6",type:"one",q:"Бывает срочный пошив?",opts:["Да, за доплату","Да, без доплаты","Нет"]}
+   ]},
+  {title:"Прайс и расчёт", short:"Прайс",
+   lead:"Сумму будет считать программа строго по вашему прайсу, а не ИИ «в уме». Так ошибки в расчётах исчезают, но для этого нужны точные правила.",
+   qs:[
+    {id:"r1",type:"many",star:true,q:"От чего зависит цена?",hint:"Отметьте всё, что влияет.",opts:["Изделие","Ткань или оттенок","Мерки и размер","Длина","Отделка и опции","Срочность","Доставка","Количество","Другое"],other:"Другое"},
+    {id:"r2",type:"area",star:true,q:"Приведите 2–3 реальных расчёта",hint:"Что хотел клиент → как посчитали → итог. Без имён клиентов. Скрины можно прикрепить в последнем разделе.",ph:"Что хотел клиент → как посчитали → итог"},
+    {id:"r3",type:"area",star:true,q:"В чём чаще всего ошибались при расчёте?"},
+    {id:"r4",type:"one",q:"Когда клиент спрашивает «сколько стоит», помощник…",opts:["Сразу называет точную цену","Называет «от … ₽» и уточняет детали","Сначала узнаёт детали, потом цену"]},
+    {id:"r5",type:"one",q:"Скидки и промокоды",opts:["Помощник может давать по правилам","Даёт только человек","Скидок нет"]}
+   ]},
+  {title:"Заказ и мерки", short:"Заказ",
+   lead:"Помощник не отдаст заказ в работу, пока не соберёт всё нужное.",
+   qs:[
+    {id:"o1",type:"one",star:true,q:"Кто снимает мерки?",opts:["Клиент сам по инструкции","Мастер на примерке","По-разному"]},
+    {id:"o2",type:"one",q:"Есть инструкция или видео «как снять мерки», которое можно отправить клиенту?",opts:["Да","Нет","Сделаем"]},
+    {id:"o3",type:"many",star:true,q:"Без чего заказ нельзя отдавать в работу?",opts:["Имя","Телефон","Адрес доставки","Изделие","Ткань и оттенок","Мерки","Желаемая дата","Другое"],other:"Другое"},
+    {id:"o4",type:"many",q:"Куда сейчас уходит оформленный заказ?",opts:["Мастеру или в цех","В таблицу","В рабочий чат","В тетрадь","Другое"],other:"Другое"}
+   ]},
+  {title:"Оплата", short:"Оплата",
+   lead:"На старте проще всего один QR-код и точная сумма в сообщении. Отдельный QR на каждую сумму делается через подключение к банку.",
+   qs:[
+    {id:"m1",type:"many",star:true,q:"Как вы принимаете оплату?",opts:["QR-код СБП","Ссылка на оплату","Перевод на карту","Наличные","Другое"],other:"Другое"},
+    {id:"m2",type:"one",star:true,q:"QR-код у вас…",opts:["Один для всех","Свой на каждую сумму","QR не используем"]},
+    {id:"m3",type:"text",q:"В каком банке счёт?"},
+    {id:"m4",type:"one",star:true,q:"Предоплата",opts:["100%","50%","Другое"],other:"Другое"},
+    {id:"m5",type:"text",star:true,q:"Кто проверяет, что деньги пришли?"},
+    {id:"m6",type:"one",q:"Выдаёте клиенту чек (онлайн-касса)?",opts:["Да","Нет","Не знаю"]}
+   ]},
+  {title:"Голос помощника", short:"Тон",
+   lead:"В премиуме тон важен не меньше скорости. Помощник ничего не придумывает: чего не знает, уточняет у человека.",
+   qs:[
+    {id:"v1",type:"text",star:true,q:"Как зовут помощника?",ph:"имя или «решим вместе»"},
+    {id:"v2",type:"one",q:"Как он представляется?",hint:"Советуем на вопрос «вы бот?» отвечать честно.",opts:["Помощник студии","Менеджер","Решим вместе"]},
+    {id:"v3",type:"one",q:"Обращение к клиенту",opts:["На «вы»","На «ты»"]},
+    {id:"v4",type:"one",q:"Эмодзи в сообщениях",opts:["Нет","Немного","Да"]},
+    {id:"v5",type:"area",star:true,q:"Чего помощник никогда не должен обещать?",ph:"например: сроки без проверки, скидки, «точно подойдёт»"},
+    {id:"v6",type:"many",star:true,q:"Когда сразу звать человека?",opts:["Жалоба","Нестандартный заказ","Крупный заказ","Постоянный клиент","Клиент просит человека","Другое"],other:"Другое"}
+   ]},
+  {title:"Команда и запуск", short:"Команда",
+   lead:"Даже при полной замене менеджеров в первые недели нужен человек, который подстрахует.",
+   qs:[
+    {id:"t1",type:"text",star:true,q:"Сколько сейчас менеджеров и кто останется после запуска?"},
+    {id:"t2",type:"one",star:true,q:"Как работаем первые недели?",opts:["Человек подтверждает каждый заказ до отправки QR — советуем","Помощник сразу работает сам","Обсудим"]},
+    {id:"t3",type:"text",star:true,q:"Кто будет подстраховывать и получать оповещения?",hint:"Оповещения о заказах и сложных вопросах приходят в общую группу Telegram."},
+    {id:"t4",type:"text",q:"К какой дате хотите запуститься?"},
+    {id:"t5",type:"area",q:"По каким признакам решите, что помощник работает хорошо?",ph:"например: отвечает за минуту, ноль ошибок в суммах"}
+   ]},
+  {title:"Instagram и рассылки", short:"Instagram",
+   lead:"Самое долгое при запуске — проверка приложения в Meta, поэтому доступы к Instagram нужны первыми.",
+   qs:[
+    {id:"i1",type:"one",star:true,q:"Ваш Instagram — бизнес-аккаунт, привязанный к странице Facebook?",opts:["Да","Нет","Не знаю, подскажите"]},
+    {id:"i2",type:"text",star:true,q:"Кто администратор аккаунта Instagram?",hint:"С ним пройдём подключение и проверку Meta."},
+    {id:"i3",type:"one",star:true,q:"Выгрузим переписку Instagram, чтобы помощник учился у ваших менеджеров?",hint:"Имена и телефоны клиентов убираем. Берём только приёмы и формулировки.",opts:["Да","Есть вопросы","Нет"]},
+    {id:"i4",type:"area",q:"Что будете рассылать и как часто?"},
+    {id:"i5",type:"many",q:"Где ещё можно делать рассылки?",hint:"Instagram не даёт бизнесу писать первым, если клиент молчит больше суток. Поэтому для рассылок нужен ещё один канал.",opts:["Telegram-канал","WhatsApp","Почта","Сторис в Instagram","Только Instagram"]}
+   ]},
+  {title:"Файлы и отправка", short:"Файлы",
+   lead:"Прикрепите то, что есть под рукой. Чего нет сейчас, пришлёте позже.",
+   qs:[
+    {id:"f1",type:"file",short:"Прайс",q:"Прайс"},
+    {id:"f2",type:"file",short:"Расчёты",q:"Примеры расчётов или скрины"},
+    {id:"f3",type:"file",short:"Мерки",q:"Мерки и инструкция по снятию"},
+    {id:"f4",type:"file",short:"Заказ",q:"Пример оформленного заказа"},
+    {id:"f5",type:"file",short:"Оплата",q:"QR-код или реквизиты для оплаты"},
+    {id:"f6",type:"file",short:"Каталог",q:"Каталог тканей и оттенков"},
+    {id:"f7",type:"file",short:"Переписки",q:"2–3 образцовые переписки",hint:"Имена клиентов закройте."}
+   ]}
+];
+
+var STORE = "brief-burenko-v1";
+var Q = {}, NUM = {}, STEP_OF = {};
+STEPS.forEach(function(s, si){
+  s.qs.forEach(function(q, qi){ Q[q.id] = q; NUM[q.id] = (si+1) + "." + (qi+1); STEP_OF[q.id] = si; });
+});
+
+var state = {step:-1, a:{}, sent:false};
+var mem = {};            // прикреплённые файлы: id -> [{name,type,size,blob}]
+var storageOk = true;
+var app = document.getElementById("app");
+
+/* ---------- хранение ---------- */
+function load(){
+  try{
+    var raw = localStorage.getItem(STORE);
+    if(raw){
+      var s = JSON.parse(raw);
+      if(s && typeof s === "object"){
+        state.step = typeof s.step === "number" ? s.step : -1;
+        state.a = s.a && typeof s.a === "object" ? s.a : {};
+        state.sent = !!s.sent;
+      }
+    }
+  }catch(e){ storageOk = false; }
+}
+var saveTimer;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{
+      localStorage.setItem(STORE, JSON.stringify({step:state.step, a:state.a, sent:state.sent}));
+      flashSaved();
+    }catch(e){ storageOk = false; }
+  }, 250);
+}
+var savedTimer;
+function flashSaved(){
+  var el = document.getElementById("saved");
+  el.classList.add("show");
+  clearTimeout(savedTimer);
+  savedTimer = setTimeout(function(){ el.classList.remove("show"); }, 1400);
+}
+
+var dbp = null;
+function idb(){
+  if(dbp) return dbp;
+  dbp = new Promise(function(res){
+    try{
+      var r = indexedDB.open("brief-burenko-files", 1);
+      r.onupgradeneeded = function(){ r.result.createObjectStore("files"); };
+      r.onsuccess = function(){ res(r.result); };
+      r.onerror = function(){ res(null); };
+      r.onblocked = function(){ res(null); };
+    }catch(e){ res(null); }
+  });
+  return dbp;
+}
+function idbPut(key, val){
+  return idb().then(function(db){
+    if(!db) return;
+    return new Promise(function(res){
+      try{
+        var tx = db.transaction("files", "readwrite");
+        tx.objectStore("files").put(val, key);
+        tx.oncomplete = res; tx.onerror = res; tx.onabort = res;
+      }catch(e){ res(); }
+    });
+  });
+}
+function idbAll(){
+  return idb().then(function(db){
+    if(!db) return {};
+    return new Promise(function(res){
+      var out = {};
+      try{
+        var rq = db.transaction("files", "readonly").objectStore("files").openCursor();
+        rq.onsuccess = function(){
+          var c = rq.result;
+          if(c){ out[c.key] = c.value; c.continue(); } else res(out);
+        };
+        rq.onerror = function(){ res(out); };
+      }catch(e){ res(out); }
+    });
+  });
+}
+function persistFiles(id){
+  var arr = mem[id] || [];
+  Promise.all(arr.map(function(f){
+    return f.blob.arrayBuffer().then(function(buf){ return {name:f.name, type:f.type, size:f.size, buf:buf}; });
+  })).then(function(vals){ return idbPut(id, vals); }).catch(function(){});
+}
+
+/* ---------- ответы ---------- */
+function ans(id){ return state.a[id] || (state.a[id] = {}); }
+function answered(q){
+  var a = state.a[q.id] || {};
+  if(q.type === "file") return (mem[q.id] || []).length > 0;
+  if(q.type === "many") return Array.isArray(a.v) && a.v.length > 0;
+  return typeof a.v === "string" && a.v.trim() !== "";
+}
+function counts(){
+  var c = {all:0, done:0, s:0, sd:0};
+  Object.keys(Q).forEach(function(id){
+    var q = Q[id];
+    if(q.type === "file") return;
+    c.all++; var d = answered(q); if(d) c.done++;
+    if(q.star){ c.s++; if(d) c.sd++; }
+  });
+  return c;
+}
+function stepState(si){
+  var qs = STEPS[si].qs.filter(function(q){ return q.type !== "file"; });
+  if(!qs.length){
+    return STEPS[si].qs.some(answered) ? "done" : "";
+  }
+  var n = qs.filter(answered).length;
+  return n === qs.length ? "done" : (n ? "part" : "");
+}
+
+/* ---------- отрисовка ---------- */
+function esc(s){
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+function size(b){
+  if(b < 1024) return b + " Б";
+  if(b < 1048576) return Math.round(b/1024) + " КБ";
+  return (b/1048576).toFixed(1).replace(".", ",") + " МБ";
+}
+var ICON = {
+  clock:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  save:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>',
+  mic:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+  lock:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+  clip:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M20 11.5l-8.2 8.2a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8"/></svg>'
+};
+
+function renderWelcome(){
+  var c = counts();
+  var started = c.done > 0;
+  return '<section class="hero">' +
+    '<p class="eyebrow">Бриф для запуска ИИ-помощника</p>' +
+    '<h1>Помощник, который отвечает как ваши лучшие менеджеры</h1>' +
+    '<p class="lead">Мы послушали ваши голосовые и уже записали то, что поняли. Осталось подтвердить и добавить детали: изделия, прайс, мерки, оплату и тон общения.</p>' +
+    '<ul class="feat">' +
+      '<li>' + ICON.clock + '<span>Около 15 минут. Большинство ответов — одним касанием.</span></li>' +
+      '<li>' + ICON.save + '<span>Всё сохраняется само: можно прерваться и вернуться по той же ссылке.</span></li>' +
+      '<li>' + ICON.mic + '<span>Удобнее голосом? Отвечайте голосовыми в Telegram, называя номер вопроса, — мы расшифруем.</span></li>' +
+      '<li>' + ICON.lock + '<span>Ответы остаются на вашем устройстве, пока вы сами их не отправите.</span></li>' +
+    '</ul>' +
+    '<button type="button" class="btn primary block" data-act="start">' + (started ? 'Продолжить — отвечено ' + c.done + ' из ' + c.all : 'Начать') + '</button>' +
+    '<p class="fine"><span class="star">★</span> — главные вопросы. Остальные можно пропустить: обсудим на созвоне.</p>' +
+    (storageOk ? '' : '<p class="fine">В этом браузере ответы не сохраняются. Не закрывайте страницу, пока не отправите их.</p>') +
+  '</section>';
+}
+
+function renderQ(q){
+  var a = state.a[q.id] || {};
+  var body = "";
+  if(q.type === "text"){
+    body = '<input type="text" id="in-' + q.id + '" data-q="' + q.id + '" data-k="v" value="' + esc(a.v || "") + '" placeholder="' + esc(q.ph || "") + '" autocomplete="off">';
+  }else if(q.type === "area"){
+    body = '<textarea rows="3" id="in-' + q.id + '" data-q="' + q.id + '" data-k="v" placeholder="' + esc(q.ph || "") + '">' + esc(a.v || "") + '</textarea>';
+  }else if(q.type === "one" || q.type === "many"){
+    var sel = q.type === "one" ? [a.v] : (Array.isArray(a.v) ? a.v : []);
+    body = '<div class="chips" role="group" aria-label="' + esc(q.q) + '">' + q.opts.map(function(o){
+      return '<button type="button" class="chip" data-q="' + q.id + '" data-opt="' + esc(o) + '" aria-pressed="' + (sel.indexOf(o) >= 0) + '">' + esc(o) + '</button>';
+    }).join("") + '</div>';
+    if(q.other && sel.indexOf(q.other) >= 0){
+      body += '<input type="text" class="other" data-q="' + q.id + '" data-k="o" value="' + esc(a.o || "") + '" placeholder="Уточните" autocomplete="off">';
+    }
+  }else if(q.type === "confirm"){
+    body = '<div class="chips" role="group">' +
+      '<button type="button" class="chip ok" data-q="' + q.id + '" data-opt="Верно" aria-pressed="' + (a.v === "Верно") + '">Верно</button>' +
+      '<button type="button" class="chip" data-q="' + q.id + '" data-opt="Поправить" aria-pressed="' + (a.v === "Поправить") + '">Поправить</button>' +
+    '</div>';
+    if(a.v === "Поправить"){
+      body += '<textarea class="other" rows="2" data-q="' + q.id + '" data-k="o" placeholder="Как на самом деле?">' + esc(a.o || "") + '</textarea>';
+    }
+  }else if(q.type === "file"){
+    var fl = mem[q.id] || [];
+    body = (fl.length ? '<ul class="files">' + fl.map(function(f, i){
+      return '<li><span>' + esc(f.name) + '</span><small>' + size(f.size) + '</small><button type="button" class="x" data-rm="' + q.id + '" data-i="' + i + '" aria-label="Убрать файл ' + esc(f.name) + '">×</button></li>';
+    }).join("") + '</ul>' : '') +
+    '<label class="drop">' + ICON.clip + '<span>' + (fl.length ? 'Добавить ещё' : 'Прикрепить файл') + '</span><input type="file" multiple data-file="' + q.id + '"></label>';
+  }
+  var labelFor = (q.type === "text" || q.type === "area") ? ' for="in-' + q.id + '"' : '';
+  return '<section class="q' + (q.type === "confirm" ? ' q-confirm' : '') + (q.type === "file" ? ' q-file' : '') + (answered(q) ? ' is-done' : '') + '" id="q-' + q.id + '">' +
+    '<div class="q-n"><span>' + NUM[q.id] + '</span>' + (q.star ? '<span class="star" title="Главный вопрос">★</span>' : '') + '<span class="tick" aria-label="отвечено">✓</span></div>' +
+    '<label class="q-t"' + labelFor + ' style="display:block">' + esc(q.q) + '</label>' +
+    (q.hint ? '<p class="hint">' + esc(q.hint) + '</p>' : '') +
+    body +
+  '</section>';
+}
+
+function renderSend(){
+  var c = counts();
+  var missing = [];
+  Object.keys(Q).forEach(function(id){ var q = Q[id]; if(q.star && !answered(q)) missing.push(q); });
+  return '<section class="send" id="send">' +
+    '<h3>' + (state.sent ? 'Ответы отправлены' : 'Готово к отправке') + '</h3>' +
+    '<p class="hint" style="margin:0">' + (state.sent ? 'Спасибо! Если что-то добавите, отправьте ещё раз — мы возьмём последнюю версию.' : 'Отправить можно в любой момент, даже если ответили не на всё.') + '</p>' +
+    '<div class="meter"><div><b>' + c.done + ' из ' + c.all + '</b><span>вопросов отвечено</span></div><div><b>' + c.sd + ' из ' + c.s + '</b><span>главных <span class="star">★</span></span></div></div>' +
+    (missing.length ? '<div class="missing"><p>Главные без ответа:</p><div class="chips">' + missing.map(function(q){
+      return '<button type="button" class="chip" data-go="' + STEP_OF[q.id] + '" data-focus="' + q.id + '">' + NUM[q.id] + '</button>';
+    }).join("") + '</div></div>' : '') +
+    '<div class="actions">' +
+      '<button type="button" class="btn primary block" data-act="share">Отправить ответы</button>' +
+      '<div class="row"><button type="button" class="btn" data-act="download">Скачать файл</button><button type="button" class="btn" data-act="copy">Скопировать текст</button></div>' +
+    '</div>' +
+    '<p class="note" id="note" aria-live="polite">Откроется меню «Поделиться»: выберите Telegram и чат с Никитой. Прикреплённые файлы уйдут вместе с ответами.</p>' +
+  '</section>' +
+  '<section class="next"><h3>Что будет дальше</h3><ol>' +
+    '<li><b>Разбираем ваши ответы</b><span>и уточняем детали на коротком созвоне.</span></li>' +
+    '<li><b>Настраиваем помощника</b><span>на вашем прайсе, мерках и переписке. Проверяем расчёты на ваших примерах.</span></li>' +
+    '<li><b>Запуск с подстраховкой</b><span>Человек видит каждый заказ и может вмешаться.</span></li>' +
+    '<li><b>Помощник работает сам</b><span>круглосуточно, а вы получаете готовые оплаченные заказы.</span></li>' +
+  '</ol></section>';
+}
+
+function renderStep(si){
+  var s = STEPS[si];
+  var last = si === STEPS.length - 1;
+  return '<div class="step-head"><h2>' + esc(s.title) + '</h2><p>' + esc(s.lead) + '</p></div>' +
+    s.qs.map(renderQ).join("") +
+    (last ? renderSend() : '') +
+    '<div class="nav' + (last ? ' static' : '') + '">' +
+      '<button type="button" class="btn" data-act="back">' + (si === 0 ? 'К началу' : '← Назад') + '</button>' +
+      (last ? '' : '<button type="button" class="btn primary" data-act="next">Далее: ' + esc(STEPS[si+1].short) + ' →</button>') +
+    '</div>' +
+    '<p class="foot">Бриф подготовил Никита. Ответы хранятся только на этом устройстве, пока вы их не отправите.</p>';
+}
+
+function renderTabs(){
+  var tabs = document.getElementById("tabs");
+  tabs.innerHTML = STEPS.map(function(s, i){
+    var st = stepState(i);
+    return '<button type="button" class="tab ' + st + '" data-go="' + i + '"' + (i === state.step ? ' aria-current="step"' : '') + '><span class="dot"></span>' + esc(s.short) + '</button>';
+  }).join("");
+  var cur = tabs.querySelector('[aria-current]');
+  if(cur && cur.scrollIntoView){
+    var l = cur.offsetLeft - 16;
+    tabs.scrollLeft = Math.max(0, l - (tabs.clientWidth - cur.offsetWidth) / 2);
+  }
+}
+
+function updateProgress(){
+  var c = counts();
+  document.getElementById("barFill").style.width = (c.all ? Math.round(c.done / c.all * 100) : 0) + "%";
+  if(state.step >= 0){
+    document.getElementById("stepOf").textContent = "Раздел " + (state.step + 1) + " из " + STEPS.length;
+    renderTabs();
+  }
+}
+
+function render(focusId){
+  var top = document.getElementById("top");
+  if(state.step < 0){
+    top.hidden = true;
+    app.innerHTML = renderWelcome();
+  }else{
+    top.hidden = false;
+    app.innerHTML = renderStep(state.step);
+  }
+  updateProgress();
+  if(focusId){
+    var el = document.getElementById("q-" + focusId);
+    if(el){ el.scrollIntoView({block:"center"}); return; }
+  }
+  window.scrollTo(0, 0);
+}
+
+function rerenderQ(id, focusOther){
+  var el = document.getElementById("q-" + id);
+  if(!el) return;
+  var tmp = document.createElement("div");
+  tmp.innerHTML = renderQ(Q[id]);
+  el.replaceWith(tmp.firstChild);
+  if(focusOther){
+    var o = document.querySelector("#q-" + id + " .other");
+    if(o && !o.value){ try{ o.focus({preventScroll:true}); }catch(e){ o.focus(); } }
+  }
+  if(state.step === STEPS.length - 1) refreshSend();
+}
+function refreshSend(){
+  var el = document.getElementById("send");
+  if(!el) return;
+  var note = document.getElementById("note");
+  var keep = note ? note.outerHTML : null;
+  var tmp = document.createElement("div");
+  tmp.innerHTML = renderSend();
+  el.nextElementSibling && el.nextElementSibling.classList.contains("next") && el.nextElementSibling.remove();
+  el.replaceWith.apply(el, Array.prototype.slice.call(tmp.childNodes));
+  if(keep){ var n = document.getElementById("note"); if(n) n.outerHTML = keep; }
+}
+
+/* ---------- действия ---------- */
+function go(i, focusId){
+  state.step = Math.max(-1, Math.min(STEPS.length - 1, i));
+  save();
+  render(focusId);
+}
+function toggle(id, opt){
+  var q = Q[id], a = ans(id), opened = false;
+  if(q.type === "many"){
+    var v = Array.isArray(a.v) ? a.v.slice() : [];
+    var k = v.indexOf(opt);
+    if(k >= 0) v.splice(k, 1); else { v.push(opt); opened = opt === q.other; }
+    a.v = v;
+  }else{
+    a.v = a.v === opt ? "" : opt;
+    opened = a.v !== "" && (a.v === q.other || a.v === "Поправить");
+  }
+  save();
+  rerenderQ(id, opened);
+  updateProgress();
+}
+function addFiles(id, list){
+  var arr = mem[id] || (mem[id] = []);
+  var tooBig = [];
+  Array.prototype.forEach.call(list, function(f){
+    if(f.size > 50 * 1048576){ tooBig.push(f.name); return; }
+    arr.push({name:f.name, type:f.type, size:f.size, blob:f});
+  });
+  if(tooBig.length) alert("Слишком большой файл (больше 50 МБ): " + tooBig.join(", ") + ". Его лучше отправить в Telegram отдельно.");
+  rerenderQ(id);
+  updateProgress();
+  persistFiles(id);
+  flashSaved();
+}
+function removeFile(id, i){
+  (mem[id] || []).splice(i, 1);
+  rerenderQ(id);
+  updateProgress();
+  persistFiles(id);
+}
+
+function fmt(q){
+  var a = state.a[q.id] || {};
+  var other = (a.o || "").trim();
+  switch(q.type){
+    case "text": case "area": return (a.v || "").trim() || "—";
+    case "one": return a.v ? (a.v === q.other && other ? a.v + ": " + other : a.v) : "—";
+    case "many":
+      if(!Array.isArray(a.v) || !a.v.length) return "—";
+      return a.v.map(function(x){ return x === q.other && other ? x + ": " + other : x; }).join(", ");
+    case "confirm": return a.v === "Верно" ? "Верно" : a.v === "Поправить" ? "Поправка: " + (other || "(не написали)") : "—";
+    case "file":
+      var fl = mem[q.id] || [];
+      return fl.length ? fl.map(function(f){ return f.name; }).join(", ") : "не приложено";
+  }
+  return "—";
+}
+function buildText(){
+  var c = counts();
+  var L = [
+    "БРИФ: ИИ-помощник для Instagram",
+    "Заполнено: " + new Date().toLocaleString("ru-RU", {day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit"}),
+    "Отвечено: " + c.done + " из " + c.all + " (главных: " + c.sd + " из " + c.s + ")",
+    ""
+  ];
+  STEPS.forEach(function(s, si){
+    L.push("", (si + 1) + ". " + s.title.toUpperCase(), "");
+    s.qs.forEach(function(q){
+      L.push(NUM[q.id] + (q.star ? " ★ " : " ") + q.q);
+      L.push("   → " + fmt(q).replace(/\n/g, "\n     "));
+      L.push("");
+    });
+  });
+  return L.join("\n");
+}
+function fileName(){
+  var d = new Date();
+  function p(n){ return (n < 10 ? "0" : "") + n; }
+  return "Бриф — ответы " + p(d.getDate()) + "." + p(d.getMonth() + 1) + "." + d.getFullYear() + ".txt";
+}
+function note(t, ok){
+  var n = document.getElementById("note");
+  if(n){ n.textContent = t; n.classList.toggle("ok", !!ok); }
+}
+function markSent(){
+  state.sent = true;
+  save();
+  var h = document.querySelector("#send h3");
+  if(h) h.textContent = "Ответы отправлены";
+}
+function attachments(){
+  var out = [];
+  STEPS[STEPS.length - 1].qs.forEach(function(q){
+    (mem[q.id] || []).forEach(function(f){
+      out.push(new File([f.blob], q.short + " — " + f.name, {type: f.type || "application/octet-stream"}));
+    });
+  });
+  return out;
+}
+function download(){
+  var blob = new Blob([buildText()], {type:"text/plain;charset=utf-8"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = fileName();
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 5000);
+}
+var actions = {
+  start: function(){ go(state.step >= 0 ? state.step : 0); },
+  next: function(){ go(state.step + 1); },
+  back: function(){ go(state.step - 1); },
+  share: function(){
+    var main = new File([buildText()], fileName(), {type:"text/plain"});
+    var extra = attachments();
+    var can = function(files){ try{ return !!(navigator.canShare && navigator.canShare({files:files})); }catch(e){ return false; } };
+    var files = [main].concat(extra);
+    var left = [];
+    if(!can(files)){
+      files = [main].concat(extra.filter(function(f){ var ok = can([f]); if(!ok) left.push(f.name); return ok; }));
+      if(!can(files)){ files = null; }
+    }
+    if(files && navigator.share){
+      navigator.share({files:files, title:"Бриф — ответы"}).then(function(){
+        markSent();
+        note(left.length ? "Отправлено. Эти файлы не прошли через «Поделиться», пришлите их в Telegram отдельно: " + left.join(", ") : "Отправлено. Спасибо!", true);
+      }).catch(function(e){
+        if(e && e.name === "AbortError") return;
+        note("Меню «Поделиться» не открылось. Нажмите «Скопировать текст» и вставьте ответы в чат с Никитой в Telegram.");
+      });
+    }else{
+      download();
+      markSent();
+      note("Файл с ответами скачан. Отправьте его Никите в Telegram" + (extra.length ? " вместе с прикреплёнными файлами." : ".") + " Если файл не появился, нажмите «Скопировать текст».", true);
+    }
+  },
+  download: function(){
+    download();
+    note("Файл скачан. Отправьте его Никите в Telegram" + (attachments().length ? " вместе с прикреплёнными файлами." : "."), true);
+  },
+  copy: function(){
+    var t = buildText();
+    var done = function(){ note("Текст скопирован. Вставьте его в чат с Никитой.", true); };
+    var fallback = function(){
+      var ta = document.createElement("textarea");
+      ta.value = t; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var ok = false; try{ ok = document.execCommand("copy"); }catch(e){}
+      ta.remove();
+      if(ok) done(); else note("Не получилось скопировать. Нажмите «Скачать файл».");
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(done, fallback);
+    }else fallback();
+  }
+};
+
+/* ---------- события ---------- */
+document.addEventListener("click", function(e){
+  var t = e.target;
+  var chip = t.closest(".chip[data-opt]");
+  if(chip){ toggle(chip.getAttribute("data-q"), chip.getAttribute("data-opt")); return; }
+  var rm = t.closest("[data-rm]");
+  if(rm){ removeFile(rm.getAttribute("data-rm"), +rm.getAttribute("data-i")); return; }
+  var g = t.closest("[data-go]");
+  if(g){ go(+g.getAttribute("data-go"), g.getAttribute("data-focus")); return; }
+  var act = t.closest("[data-act]");
+  if(act && actions[act.getAttribute("data-act")]) actions[act.getAttribute("data-act")]();
+});
+app.addEventListener("input", function(e){
+  var el = e.target, id = el.getAttribute("data-q"), k = el.getAttribute("data-k");
+  if(!id || !k) return;
+  ans(id)[k] = el.value;
+  save();
+  var sec = document.getElementById("q-" + id);
+  if(sec) sec.classList.toggle("is-done", answered(Q[id]));
+  updateProgress();
+});
+app.addEventListener("change", function(e){
+  var el = e.target, id = el.getAttribute("data-file");
+  if(id && el.files && el.files.length){ addFiles(id, el.files); }
+});
+
+/* ---------- запуск ---------- */
+load();
+if(state.step >= STEPS.length) state.step = STEPS.length - 1;
+render();
+idbAll().then(function(all){
+  var any = false;
+  Object.keys(all || {}).forEach(function(id){
+    if(!Q[id] || !Array.isArray(all[id])) return;
+    mem[id] = all[id].map(function(f){ return {name:f.name, type:f.type, size:f.size, blob:new Blob([f.buf], {type:f.type || ""})}; });
+    if(mem[id].length) any = true;
+  });
+  if(any && state.step === STEPS.length - 1) render();
+  else if(any) updateProgress();
+});
+})();
+</script>
+</body>
+</html>
