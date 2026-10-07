@@ -226,7 +226,7 @@ var STEPS = [
    qs:[
     {id:"t1",type:"text",star:true,q:"Сколько сейчас менеджеров и кто останется после запуска?"},
     {id:"t2",type:"one",star:true,q:"Как работаем первые недели?",opts:["Человек подтверждает каждый заказ до отправки QR — советуем","Помощник сразу работает сам","Обсудим"]},
-    {id:"t3",type:"text",star:true,q:"Кто будет подстраховывать и получать оповещения?",hint:"Оповещения о заказах и сложных вопросах приходят в общую группу Telegram."},
+    {id:"t3",type:"text",star:true,q:"Кто будет подстраховывать и получать оповещения?",hint:"Оповещения о заказах и сложных вопросах приходят в общий рабочий чат."},
     {id:"t4",type:"text",q:"К какой дате хотите запуститься?"},
     {id:"t5",type:"area",q:"По каким признакам решите, что помощник работает хорошо?",ph:"например: отвечает за минуту, ноль ошибок в суммах"}
    ]},
@@ -237,7 +237,7 @@ var STEPS = [
     {id:"i2",type:"text",star:true,q:"Кто администратор аккаунта Instagram?",hint:"С ним пройдём подключение и проверку Meta."},
     {id:"i3",type:"one",star:true,q:"Выгрузим переписку Instagram, чтобы помощник учился у ваших менеджеров?",hint:"Имена и телефоны клиентов убираем. Берём только приёмы и формулировки.",opts:["Да","Есть вопросы","Нет"]},
     {id:"i4",type:"area",q:"Что будете рассылать и как часто?"},
-    {id:"i5",type:"many",q:"Где ещё можно делать рассылки?",hint:"Instagram не даёт бизнесу писать первым, если клиент молчит больше суток. Поэтому для рассылок нужен ещё один канал.",opts:["Telegram-канал","WhatsApp","Почта","Сторис в Instagram","Только Instagram"]}
+    {id:"i5",type:"many",q:"Где ещё можно делать рассылки?",hint:"Instagram не даёт бизнесу писать первым, если клиент молчит больше суток. Поэтому для рассылок нужен ещё один канал.",opts:["Канал в МАКСе","Telegram-канал","WhatsApp","Почта","Сторис в Instagram","Только Instagram"]}
    ]},
   {title:"Файлы и отправка", short:"Файлы",
    lead:"Прикрепите то, что есть под рукой. Чего нет сейчас, пришлёте позже.",
@@ -400,7 +400,7 @@ function renderWelcome(){
     '<ul class="feat">' +
       '<li>' + ICON.clock + '<span>Около 15 минут. Большинство ответов — одним касанием.</span></li>' +
       '<li>' + ICON.save + '<span>Всё сохраняется само: можно прерваться и вернуться по той же ссылке.</span></li>' +
-      '<li>' + ICON.mic + '<span>Удобнее голосом? Отвечайте голосовыми в Telegram, называя номер вопроса, — мы расшифруем.</span></li>' +
+      '<li>' + ICON.mic + '<span>Удобнее голосом? Отвечайте голосовыми в МАКСе, называя номер вопроса, — мы расшифруем.</span></li>' +
       '<li>' + ICON.lock + '<span>Ответы остаются на вашем устройстве, пока вы сами их не отправите.</span></li>' +
     '</ul>' +
     '<button type="button" class="btn primary block" data-act="start">' + (started ? 'Продолжить — отвечено ' + c.done + ' из ' + c.all : 'Начать') + '</button>' +
@@ -461,9 +461,9 @@ function renderSend(){
     }).join("") + '</div></div>' : '') +
     '<div class="actions">' +
       '<button type="button" class="btn primary block" data-act="share">Отправить ответы</button>' +
-      '<div class="row"><button type="button" class="btn" data-act="download">Скачать файл</button><button type="button" class="btn" data-act="copy">Скопировать текст</button></div>' +
+      '<div class="row"><button type="button" class="btn" data-act="shareText">Отправить текстом</button><button type="button" class="btn" data-act="copy">Скопировать текст</button></div>' +
     '</div>' +
-    '<p class="note" id="note" aria-live="polite">Откроется меню «Поделиться»: выберите Telegram и чат с Никитой. Прикреплённые файлы уйдут вместе с ответами.</p>' +
+    '<p class="note" id="note" aria-live="polite">Откроется меню «Поделиться»: выберите МАКС и чат с Никитой. Ответы уйдут файлом вместе с прикреплёнными файлами.</p>' +
   '</section>' +
   '<section class="next"><h3>Что будет дальше</h3><ol>' +
     '<li><b>Разбираем ваши ответы</b><span>и уточняем детали на коротком созвоне.</span></li>' +
@@ -577,7 +577,7 @@ function addFiles(id, list){
     if(f.size > 50 * 1048576){ tooBig.push(f.name); return; }
     arr.push({name:f.name, type:f.type, size:f.size, blob:f});
   });
-  if(tooBig.length) alert("Слишком большой файл (больше 50 МБ): " + tooBig.join(", ") + ". Его лучше отправить в Telegram отдельно.");
+  if(tooBig.length) alert("Слишком большой файл (больше 50 МБ): " + tooBig.join(", ") + ". Его лучше отправить в МАКСе отдельно.");
   rerenderQ(id);
   updateProgress();
   persistFiles(id);
@@ -614,15 +614,21 @@ function buildText(){
     "Отвечено: " + c.done + " из " + c.all + " (главных: " + c.sd + " из " + c.s + ")",
     ""
   ];
+  var empty = [];
+  Object.keys(Q).forEach(function(id){ if(Q[id].type !== "file" && !answered(Q[id])) empty.push(NUM[id]); });
+  if(empty.length) L.push("Без ответа: " + empty.join(", "), "");
+  if(!c.done && !attachments().length) L.push("Пока ответов нет.");
   STEPS.forEach(function(s, si){
+    var qs = s.qs.filter(answered);
+    if(!qs.length) return;
     L.push("", (si + 1) + ". " + s.title.toUpperCase(), "");
-    s.qs.forEach(function(q){
+    qs.forEach(function(q){
       L.push(NUM[q.id] + (q.star ? " ★ " : " ") + q.q);
-      L.push("   → " + fmt(q).replace(/\n/g, "\n     "));
+      L.push("→ " + fmt(q).replace(/\n/g, "\n  "));
       L.push("");
     });
   });
-  return L.join("\n");
+  return L.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
 }
 function fileName(){
   var d = new Date();
@@ -671,22 +677,34 @@ var actions = {
       if(!can(files)){ files = null; }
     }
     if(files && navigator.share){
-      navigator.share({files:files, title:"Бриф — ответы"}).then(function(){
+      navigator.share({files:files}).then(function(){
         markSent();
-        note(left.length ? "Отправлено. Эти файлы не прошли через «Поделиться», пришлите их в Telegram отдельно: " + left.join(", ") : "Отправлено. Спасибо!", true);
+        note(left.length ? "Отправлено. Эти файлы не прошли через «Поделиться», пришлите их в МАКСе отдельно: " + left.join(", ") : "Готово! В чате должен появиться файл «" + main.name + "». Если его нет — нажмите «Отправить текстом».", true);
       }).catch(function(e){
         if(e && e.name === "AbortError") return;
-        note("Меню «Поделиться» не открылось. Нажмите «Скопировать текст» и вставьте ответы в чат с Никитой в Telegram.");
+        note("Меню «Поделиться» не открылось. Нажмите «Отправить текстом» или «Скопировать текст».");
       });
     }else{
       download();
       markSent();
-      note("Файл с ответами скачан. Отправьте его Никите в Telegram" + (extra.length ? " вместе с прикреплёнными файлами." : ".") + " Если файл не появился, нажмите «Скопировать текст».", true);
+      note("Файл с ответами скачан. Отправьте его Никите в МАКСе" + (extra.length ? " вместе с прикреплёнными файлами." : ".") + " Если файл не появился, нажмите «Скопировать текст».", true);
     }
+  },
+  shareText: function(){
+    var t = buildText();
+    if(navigator.share){
+      navigator.share({text:t}).then(function(){
+        markSent();
+        note("Готово! Ответы ушли сообщением.", true);
+      }).catch(function(e){
+        if(e && e.name === "AbortError") return;
+        actions.copy();
+      });
+    }else actions.copy();
   },
   download: function(){
     download();
-    note("Файл скачан. Отправьте его Никите в Telegram" + (attachments().length ? " вместе с прикреплёнными файлами." : "."), true);
+    note("Файл скачан. Отправьте его Никите в МАКСе" + (attachments().length ? " вместе с прикреплёнными файлами." : "."), true);
   },
   copy: function(){
     var t = buildText();
