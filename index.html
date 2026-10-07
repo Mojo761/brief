@@ -614,10 +614,10 @@ function buildText(){
     "Отвечено: " + c.done + " из " + c.all + " (главных: " + c.sd + " из " + c.s + ")",
     ""
   ];
-  var empty = [];
-  Object.keys(Q).forEach(function(id){ if(Q[id].type !== "file" && !answered(Q[id])) empty.push(NUM[id]); });
-  if(empty.length) L.push("Без ответа: " + empty.join(", "), "");
+  var emptyStar = [];
+  Object.keys(Q).forEach(function(id){ if(Q[id].star && !answered(Q[id])) emptyStar.push(NUM[id]); });
   if(!c.done && !attachments().length) L.push("Пока ответов нет.");
+  else if(emptyStar.length) L.push("Главные без ответа: " + emptyStar.join(", "), "");
   STEPS.forEach(function(s, si){
     var qs = s.qs.filter(answered);
     if(!qs.length) return;
